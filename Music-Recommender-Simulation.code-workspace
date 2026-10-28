@@ -1,0 +1,9 @@
+﻿{
+  "folders": [
+    { "name": "Music Recommender Simulation", "path": "." }
+  ],
+  "settings": {
+    "files.exclude": { "**/__pycache__": true },
+    "python.analysis.extraPaths": ["."]
+  }
+}
