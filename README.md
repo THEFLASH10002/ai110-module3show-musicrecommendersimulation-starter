@@ -2,13 +2,21 @@
 
 ## Project Summary
 
-Phase 1 designs an explainable, content-based music recommender using the supplied 10-song catalog. The proposed Python architecture separates CSV loading, song and user data, scoring, ranking, and explanations. The recipe below is a design specification; the starter Python functions still contain TODOs for later implementation phases.
+This project designs an explainable, content-based music recommender using an expanded 18-song catalog. The proposed Python architecture separates CSV loading, song and user data, scoring, ranking, and explanations. The data, user profile, and scoring plan are defined below; the starter Python functions still contain TODOs for later implementation phases.
 
 ## How The System Works
 
 Real recommendation systems turn listening behavior and content information into predictions of what someone might enjoy. Collaborative filtering uses patterns across listeners, while content-based filtering compares attributes of songs with a listener's preferences. Spotify describes combining listening history with track relationships and audio attributes, and updating taste representations from listening, skips, and saves ([Spotify Engineering](https://engineering.atspotify.com/2023/4/humans-machines-a-look-behind-spotifys-algotorial-playlists)). This simulation will prioritize matching genre and mood, closeness to a preferred energy level, and acoustic preference. It will assign each song a transparent weighted score, sort the catalog, and return the top k songs with explanations. Its scores represent similarity, not probabilities that a person will like a song.
 
 ### Song and UserProfile features
+
+`data/songs.csv` preserves the original ten songs and adds eight fictional songs (IDs 11–18). The additions introduce folk, ska, country, soul, hip hop, classical, reggae, and house, with eight moods absent from the starter catalog: reflective, playful, melancholic, romantic, defiant, solemn, hopeful, and euphoric. Their numeric values are synthetic design examples, not measured audio features. Every energy, valence, danceability, and acousticness value is on a 0.0–1.0 scale; tempo is in BPM.
+
+The data expansion prompt for this step is:
+
+> Generate eight fictional songs as valid CSV using exactly these headers: id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness. Use unique IDs 11–18. Introduce genres outside pop, lofi, rock, ambient, jazz, synthwave, and indie pop, and moods outside happy, chill, intense, relaxed, moody, and focused. Keep all normalized numerical features within 0.0–1.0 and tempo positive. Return the header and eight complete rows with no extra columns.
+
+Danceability and acousticness already provide the suggested extra numerical depth, alongside tempo and valence. Keep these existing columns rather than adding duplicate features. Only acousticness joins energy in the initial scoring recipe; the others remain available for later experiments.
 
 The existing `Song` dataclass stores every CSV field:
 
@@ -22,6 +30,27 @@ The existing `Song` dataclass stores every CSV field:
 | `tempo_bpm`, `valence`, `danceability` | Retained for future scoring experiments |
 
 The existing `UserProfile` stores `favorite_genre: str`, `favorite_mood: str`, `target_energy: float` (0 to 1), and `likes_acoustic: bool`. It expresses explicit preferences; it does not infer taste from listening history. Keep these interfaces compatible with the starter tests. The functional runner currently uses `genre`, `mood`, and `energy` dictionary keys; implementation should adapt those to the same recipe, with missing acoustic preference meaning no acoustic contribution.
+
+### Example taste profile and critique
+
+Use this specific hypothetical profile for a listener seeking calm study music:
+
+```python
+user_profile = {
+    "favorite_genre": "lofi",
+    "favorite_mood": "chill",
+    "target_energy": 0.40,
+    "likes_acoustic": True,
+}
+```
+
+This is a simulation persona, not a claim about the student's personal taste. It can be passed to `UserProfile(**user_profile)` once the recommender is implemented. The functional interface will map the first three keys to `genre`, `mood`, and `energy`, and retain `likes_acoustic`.
+
+Profile critique prompt:
+
+> Critique this profile: favorite_genre=lofi, favorite_mood=chill, target_energy=0.40, likes_acoustic=True. With the attached songs.csv and the recipe below, can it distinguish intense rock from chill lofi? Is it too narrow for discovery? Identify missing preferences without assuming that this represents all of the listener's taste.
+
+The profile clearly distinguishes the two styles: it rewards lofi and chill matches, low energy distance, and acousticness. It is useful for one study session but narrow as a permanent taste model. One genre and one mood cannot capture a listener who also enjoys intense rock during exercise. Later versions could support multiple genres, activity-specific profiles, and an optional discovery slot. Acoustic preference is independent of genre; lofi is not necessarily acoustic.
 
 ### Algorithm Recipe
 
@@ -48,15 +77,36 @@ Energy rewards closeness rather than magnitude: for a target of 0.40, songs at 0
 
 For an illustrative profile (`pop`, `happy`, energy 0.80, `likes_acoustic=False`), Sunrise City would score `0.40 + 0.30 + 0.20*0.98 + 0.10*0.82 = 0.978`. This is a worked calculation, not output from an implemented recommender or a claim about the student's taste.
 
+For the study profile above, Library Rain scores `0.40 + 0.30 + 0.20*0.95 + 0.10*0.86 = 0.976`, while Storm Runner scores `0 + 0 + 0.20*0.49 + 0.10*0.10 = 0.108`. These hand calculations show how chill lofi outranks intense rock for this particular session. They do not measure recommendation quality.
+
+The finalized recipe keeps the existing normalized weights: genre 40%, mood 30%, energy 20%, and acousticness 10%. Mood is close enough to genre in weight to influence ranking substantially, while the two numerical features distinguish songs with identical labels. The optional +2 genre / +1 mood / energy-similarity recipe would put more emphasis on genre relative to mood; the selected weights better fit this session's mood preference.
+
+For the requested separate chat, open a session titled **Scoring Logic Design**, attach the expanded `data/songs.csv`, and use this prompt:
+
+> Compare +2 genre / +1 mood / energy similarity with a normalized 40% genre / 30% mood / 20% energy / 10% acousticness recipe for the study profile above. How much should mood count relative to genre? Use Library Rain and Storm Runner as worked examples, discuss discovery bias, and specify normalization, missing preferences, tie-breaking, and top-k behavior.
+
+This plan was prepared in the current chat; a separate chat session has not been created by the assistant.
+
 ### Proposed modular flow
 
-`data/songs.csv -> load_songs -> Song records + UserProfile -> score_song -> rank -> top k + reasons`
+```text
+Input: user preferences + data/songs.csv
+  -> load song records and validate feature ranges
+  -> loop over every song: compare labels and numerical features
+  -> calculate weighted score and matching reasons for each song
+  -> sort by descending score, then ascending numeric ID for ties
+  -> output: top k recommendations with scores and explanations
+```
 
 Use one scoring recipe shared by the functional and object-oriented interfaces. `Recommender.recommend` should rank songs; `explain_recommendation` should describe the same contributions used to score them. An explanation should identify actual matches and distances rather than claim certainty about enjoyment.
 
+### Expected biases in this plan
+
+Genre has the largest individual weight, so the system may overlook songs that fit the mood but use unfamiliar genre labels. Lofi and chill still have three examples each, while the new genres and moods have one each; expanding coverage does not balance the catalog. Exact matching misses related styles, and a fixed profile cannot represent changing contexts. The invented numeric attributes also reflect the author's assumptions about music. Assess relevance and genre/artist variety together before making claims about recommendation quality.
+
 ## Phase 1 Data Analysis
 
-Audited the original CSV without changing it: 10 rows, 10 unique IDs, 11 columns, and no missing cells.
+The original starter CSV audit below records 10 rows, 10 unique IDs, 10 columns, and no missing cells. It is a historical baseline; the expanded CSV now has 18 rows, 18 unique IDs, and the same 10 columns.
 
 | Attribute | Observed values |
 | --- | --- |
@@ -97,7 +147,7 @@ These are anticipated risks, not measured outcomes from the unfinished implement
 - Exact category matches can miss related genres and favor whichever labels the catalog uses.
 - One energy target and one genre flatten a person's changing or mixed tastes.
 - Acoustic preference is simplified to a boolean; lyrics, language, culture, and accessibility needs are absent.
-- The numeric labels' provenance and annotation reliability are unspecified. Ten songs cannot establish general recommendation quality.
+- The starter numeric labels' provenance and annotation reliability are unspecified, and the added labels are synthetic. Eighteen songs cannot establish general recommendation quality.
 
 Future improvements: test diverse and unsupported profiles, compare weight settings, measure genre/artist coverage in top k, add an optional discovery slot, and collect explicit feedback. Evaluate relevance and diversity together. An ID tie-break is reproducible but does not improve fairness by itself.
 

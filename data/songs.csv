@@ -9,3 +9,11 @@ id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness
 8,Night Drive Loop,Neon Echo,synthwave,moody,0.75,110,0.49,0.73,0.22
 9,Focus Flow,LoRoom,lofi,focused,0.40,80,0.59,0.60,0.78
 10,Rooftop Lights,Indigo Parade,indie pop,happy,0.76,124,0.81,0.82,0.35
+11,Desert Lantern,Saffron Roads,folk,reflective,0.32,84,0.43,0.46,0.94
+12,Brass Horizon,Copper Steps,ska,playful,0.86,146,0.91,0.87,0.28
+13,Last Train Letter,Juniper Vale,country,melancholic,0.44,96,0.24,0.52,0.81
+14,Velvet Promise,Amara Blue,soul,romantic,0.51,88,0.72,0.65,0.63
+15,Concrete Anthem,Verse Atlas,hip hop,defiant,0.88,102,0.38,0.84,0.09
+16,Glass Cathedral,Silver Quartet,classical,solemn,0.24,66,0.21,0.18,0.98
+17,Island Tomorrow,Tide Assembly,reggae,hopeful,0.58,92,0.86,0.78,0.47
+18,Afterglow Circuit,Prism Current,house,euphoric,0.89,126,0.93,0.95,0.04
