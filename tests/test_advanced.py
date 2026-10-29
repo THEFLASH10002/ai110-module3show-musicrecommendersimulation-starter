@@ -1,6 +1,7 @@
 """Verify advanced feature math, selectable modes, and diversity selection."""
 
 import csv
+import math
 from dataclasses import asdict
 from pathlib import Path
 import subprocess
@@ -16,6 +17,32 @@ from src.recommender import (
 
 ROOT = Path(__file__).resolve().parents[1]
 POP = EVALUATION_PROFILES["High-Energy Pop"]
+
+
+@pytest.mark.parametrize("mode", ["genre-first", "mood-first", "energy-focus"])
+@pytest.mark.parametrize("advanced", [False, True])
+@pytest.mark.parametrize("diversity", [False, True])
+def test_all_profile_mode_feature_combinations(mode, advanced, diversity):
+    """Require ranked, explained results across every supported feature combination."""
+    songs = load_songs(ROOT / "data/songs.csv")
+    original = [song.copy() for song in songs]
+    for profile in EVALUATION_PROFILES.values():
+        prefs = with_advanced_preferences(profile) if advanced else profile
+        results = recommend_songs(prefs, songs, recipe=mode, diversity=diversity)
+        assert len(results) == 5
+        assert len({song["id"] for song, _, _ in results}) == 5
+        scores = [score for _, score, _ in results]
+        assert all(math.isfinite(score) for score in scores)
+        assert scores == sorted(scores, reverse=True)
+        assert all(explanation for _, _, explanation in results)
+        if advanced:
+            for _, _, explanation in results:
+                for feature in ("popularity", "release decade", "detailed mood tags", "duration", "instrumentalness"):
+                    assert f"{feature} similarity" in explanation
+        if diversity:
+            assert all("repeated artist penalty" in reason and "repeated genre penalty" in reason
+                       for _, _, reason in results)
+    assert songs == original
 
 
 def test_advanced_csv_types_and_original_values():

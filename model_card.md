@@ -16,7 +16,7 @@ The baseline gives genre 40% of the score, mood 30%, energy closeness 20%, and a
 
 If acoustic preference is absent, that part is omitted and the remaining weights are scaled to total 100%. Every song receives a score and a list of reasons. The system sorts full scores from highest to lowest, breaks ties with the smaller numeric song ID, and returns five songs. It can return fewer if the catalog is smaller. The starter placeholders were replaced with CSV loading, validation, shared scoring, ranking, and a working CLI.
 
-The optional **energy-focus** experiment halves genre's weight to 20% and doubles energy's weight to 40%. Mood stays at 30% and acousticness at 10%. Both recipes total 100%, or 90% before scaling when acoustic preference is absent. The baseline remains the default.
+The optional **energy-focus** experiment halves genre's weight to 20% and doubles energy's weight to 40%. Mood stays at 30% and acousticness at 10%. Both recipes total 100%, or 90% before scaling when acoustic preference is absent. The baseline remains the default. Mood-first is also available, with 20% genre, 50% mood, 20% energy, and 10% acousticness. Optional advanced attributes are described in Section 10; they contribute only when targets are supplied.
 
 ## 4. Data Used
 
@@ -81,17 +81,9 @@ Rooftop Lights moves above Gym Hero when genre loses weight. Its happy mood and 
 
 The ordinary profiles keep their first-place songs. The edge case changes its winner to Midnight Coding, whose energy is the highest of the three lofi tracks, but that value is still only 0.42. Its first three choices remain lofi. This was the main surprise: doubling energy changes rankings without solving sparse data or missing mood labels. Larger scores under the new recipe do not mean greater accuracy, because the scoring scale's meaning has changed. Keep the baseline as the default until listener feedback supports another choice.
 
-### AI evaluation prompts and review
+### AI assistance
 
-This evaluation was performed in the current chat. A separate chat session cannot be opened by the assistant and has not been created. To repeat the requested workflow, open **System Evaluation** and attach `src/recommender.py`, `src/main.py`, and `data/songs.csv`.
-
-> Suggest adversarial user profiles for these files. Include conflicting genre/energy preferences, an unavailable mood, unknown categories, and energy boundaries. Predict failure modes without claiming that output scores measure enjoyment.
-
-> Explain why Library Rain ranks above Midnight Coding for the Chill Lofi profile using the current baseline weights. Show the individual contributions and check the total.
-
-> Halve genre's weight from 0.40 to 0.20 and double energy's weight from 0.20 to 0.40. Keep mood at 0.30 and acousticness at 0.10. Verify that the weights sum to 1.0, renormalize when acoustic preference is absent, and compare the same four profiles before and after.
-
-> Review recommender.py and songs.csv for filter bubbles and unequal catalog coverage. Explain how an unavailable mood such as sad and a large energy gap affect the actual recommendations.
+Evaluation used the coding assistant to propose edge cases and check score explanations. [AI interactions](ai_interactions.md) records the workflow, repeatable prompts, and verification notes. No separate chat session was created.
 
 ### Captured terminal output
 
@@ -343,7 +335,7 @@ The biggest learning moment was seeing that valid scoring math can still produce
 
 Five new features can contribute when their targets are supplied: popularity, decade, detailed mood tags, duration, and instrumentalness. Each gets raw weight 0.10, and all active weights are normalized together. Popularity rewards closeness to a requested level, not fame alone. Three selectable strategies share one scorer: genre-first, mood-first, and energy-focus; baseline is an alias for genre-first. The original evaluation above uses only the core preferences.
 
-Diversity is optional. Each prior appearance of an artist subtracts 0.12 and each prior appearance of a genre subtracts 0.06 from a candidate. The system recomputes these penalties after each selection. Relevance can still outweigh a penalty, so this is not a quota. It offers variety across artist and genre labels, not proof of fairness to people or musical cultures. Displayed adjusted scores can be negative; explanations retain the base score and each penalty.
+Diversity is optional. Each prior appearance of an artist subtracts 0.12 and each prior appearance of a genre subtracts 0.06 from a candidate. The system recomputes these penalties after each selection. In the pop baseline, enabling diversity replaces Night Drive Loop (a second Neon Echo track) with Concrete Anthem. The five results then cover five artists instead of four, spreading exposure across more artists in that example. The chill list moves Spacewalk Thoughts above the third lofi song. These changes reduce repeated exposure and encourage discovery within this small catalog. Relevance can still outweigh a penalty, so this is not a quota. It offers variety across artist and genre labels, not proof of fairness to people or musical cultures. Displayed adjusted scores can be negative; explanations retain the base score and each penalty.
 
 Additional limitations: synthetic popularity and decade values cannot support conclusions about real trends. Exact detailed tags can miss synonyms; detailed tags and the main mood can count similar information twice. Treating all five extra preferences as equally important is a design choice without listener validation. The example instrumentalness targets are explicit simulation choices and do not imply a relationship between instrumental and acoustic music. The data schema admits decades from 1900 to 2090 for experimentation; those bounds are not a claim that a track has already been released.
 

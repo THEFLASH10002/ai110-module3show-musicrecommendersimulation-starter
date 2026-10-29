@@ -58,3 +58,9 @@ AI contributed the implementation, the tradeoff analysis, example prompts, tests
 ## Diversity and Fairness Review
 
 Artist and genre variety are limited forms of coverage. A soft score penalty does not guarantee equal exposure, a fixed artist quota, or fairness across people or cultures. Relevance can outweigh the penalty, and adjusted scores can become negative when many repeats are selected. The score column shows this adjusted selection score when diversity is enabled; reasons retain the original base score. Synthetic popularity must not be treated as evidence of real listening trends, and a popularity target is matched by closeness rather than always rewarding the most popular song.
+
+## Rubric Cleanup Review
+
+The supplied rubric has seven required categories worth 21 points and four bonus categories worth 8 points. Reviewed the existing implementation against each category, then added an evidence table in the README linking to the relevant code, captured outputs, model card, and workflow notes. Replaced outdated planning instructions with descriptions of the finished system and corrected the displayed advanced-feature ranges. The model card now explicitly describes the observed gain from four to five artists in the diverse pop list, while keeping the limits of this fairness claim clear.
+
+Added interaction checks for all three ranking modes, advanced preferences on/off, and diversity on/off across all four evaluation profiles. These verify finite descending scores, five distinct recommendations, complete advanced contributions and penalties, and unchanged input records. The final check is `python -m pytest -q`: **77 tests passed**. `git diff --check` also passed. The rubric table documents evidence rather than claiming an instructor's grade; the personal reflection remains labeled as a student-review draft.
