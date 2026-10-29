@@ -189,6 +189,8 @@ Phase 1 research, CSV analysis, architecture, and scoring/ranking design are doc
 
 CSV loading, scoring, ranking, explanations, and the module CLI are implemented. Automated tests cover known score calculations, missing acoustic preference, numerical validation, profile aliases, ranking independently of input order, ties, k boundaries, dataclass consistency, and CLI output. Run them with `python -m pytest` after installing pytest if needed (`python -m pip install pytest`). The core CLI uses only the Python standard library.
 
-Run `python -m src.main` from the project root. Its package-relative import supports module execution, and the CSV path is resolved relative to the project files. Weight experiments, listener evaluation, and an evaluated Model Card remain future work.
+Run `python -m src.main` from the project root. Its package-relative import supports module execution, and the CSV path is resolved relative to the project files. Run `python -m src.main --evaluate` for High-Energy Pop, Chill Lofi, Deep Intense Rock, and Conflicting Lofi. Repeat with `python -m src.main --evaluate --recipe energy-focus` to halve genre's weight and double energy's weight while keeping the baseline as the default. Both recipes use the same scoring function and normalized weights.
+
+The completed [model card](model_card.md) records all eight profile/recipe outputs, all six pairwise profile comparisons, the weight experiment, observed limitations, and a reflection draft for the student to personalize. The experiment changes rankings but does not establish improved listener satisfaction. Human listener evaluation remains future work.
 
 See [Phase 1 AI notes](phase1_ai_notes.md) for the assistant's role and suggested follow-up prompts. The student's personal reflection and taste assessment require their own review.

@@ -72,7 +72,7 @@ def load_songs(csv_path: str) -> List[Dict]:
     return songs
 
 
-def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
+def score_song(user_prefs: Dict, song: Dict, *, recipe: str = "baseline") -> Tuple[float, List[str]]:
     """Return the normalized weighted similarity and its component explanations."""
     genre = user_prefs["genre"] if "genre" in user_prefs else user_prefs["favorite_genre"]
     mood = user_prefs["mood"] if "mood" in user_prefs else user_prefs["favorite_mood"]
@@ -82,13 +82,21 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     likes_acoustic = user_prefs.get("likes_acoustic")
     if likes_acoustic is not None and not isinstance(likes_acoustic, bool):
         raise ValueError("likes_acoustic must be True, False, or None")
-    active_weight = 0.9 if likes_acoustic is None else 1.0
+    if recipe == "baseline":
+        genre_weight, mood_weight, energy_weight, acoustic_weight = 0.4, 0.3, 0.2, 0.1
+    elif recipe == "energy-focus":
+        genre_weight, mood_weight, energy_weight, acoustic_weight = 0.2, 0.3, 0.4, 0.1
+    else:
+        raise ValueError(f"Unknown scoring recipe: {recipe}")
+    active_weight = genre_weight + mood_weight + energy_weight
+    if likes_acoustic is not None:
+        active_weight += acoustic_weight
     genre_match = song["genre"].strip().casefold() == genre.strip().casefold()
     mood_match = song["mood"].strip().casefold() == mood.strip().casefold()
-    genre_points = 0.4 * genre_match / active_weight
-    mood_points = 0.3 * mood_match / active_weight
+    genre_points = genre_weight * genre_match / active_weight
+    mood_points = mood_weight * mood_match / active_weight
     distance = abs(energy - target)
-    energy_points = 0.2 * (1 - distance) / active_weight
+    energy_points = energy_weight * (1 - distance) / active_weight
     reasons = [
         f"genre {'match' if genre_match else 'mismatch'} (+{genre_points:.3f})",
         f"mood {'match' if mood_match else 'mismatch'} (+{mood_points:.3f})",
@@ -98,7 +106,7 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     if likes_acoustic is not None:
         acousticness = _unit_value(song["acousticness"], "acousticness")
         similarity = acousticness if likes_acoustic else 1 - acousticness
-        acoustic_points = 0.1 * similarity / active_weight
+        acoustic_points = acoustic_weight * similarity / active_weight
         score += acoustic_points
         preference = "higher" if likes_acoustic else "lower"
         reasons.append(f"{preference} acousticness similarity {similarity:.3f} (+{acoustic_points:.3f})")
@@ -107,13 +115,13 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     return score, reasons
 
 
-def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tuple[Dict, float, str]]:
+def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5, *, recipe: str = "baseline") -> List[Tuple[Dict, float, str]]:
     """Score every song and return the top k by score, breaking ties by numeric ID."""
     if k <= 0:
         return []
     scored = []
     for song in songs:
-        score, reasons = score_song(user_prefs, song)
+        score, reasons = score_song(user_prefs, song, recipe=recipe)
         scored.append((song, score, "; ".join(reasons)))
     return sorted(scored, key=lambda result: (-result[1], int(result[0]["id"])))[:k]
 
