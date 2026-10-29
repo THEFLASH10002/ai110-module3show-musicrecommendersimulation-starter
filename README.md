@@ -1,12 +1,12 @@
-﻿# Music Recommender Simulation
+# Music Recommender Simulation
 
 ## Project Summary
 
-This project designs an explainable, content-based music recommender using an expanded 18-song catalog. The proposed Python architecture separates CSV loading, song and user data, scoring, ranking, and explanations. The data, user profile, and scoring plan are defined below; the starter Python functions still contain TODOs for later implementation phases.
+This working CLI-first simulation recommends music from an expanded 18-song catalog. It loads typed CSV records, compares songs with explicit preferences, and returns a ranked list with score explanations. The functional and dataclass interfaces share the scoring recipe defined below.
 
 ## How The System Works
 
-Real recommendation systems turn listening behavior and content information into predictions of what someone might enjoy. Collaborative filtering uses patterns across listeners, while content-based filtering compares attributes of songs with a listener's preferences. Spotify describes combining listening history with track relationships and audio attributes, and updating taste representations from listening, skips, and saves ([Spotify Engineering](https://engineering.atspotify.com/2023/4/humans-machines-a-look-behind-spotifys-algotorial-playlists)). This simulation will prioritize matching genre and mood, closeness to a preferred energy level, and acoustic preference. It will assign each song a transparent weighted score, sort the catalog, and return the top k songs with explanations. Its scores represent similarity, not probabilities that a person will like a song.
+Real recommendation systems turn listening behavior and content information into predictions of what someone might enjoy. Collaborative filtering uses patterns across listeners, while content-based filtering compares attributes of songs with a listener's preferences. Spotify describes combining listening history with track relationships and audio attributes, and updating taste representations from listening, skips, and saves ([Spotify Engineering](https://engineering.atspotify.com/2023/4/humans-machines-a-look-behind-spotifys-algotorial-playlists)). This simulation prioritizes matching genre and mood, closeness to a preferred energy level, and acoustic preference. It assigns each song a transparent weighted score, sorts the catalog, and returns the top k songs with explanations. Its scores represent similarity, not probabilities that a person will like a song.
 
 ### Song and UserProfile features
 
@@ -29,7 +29,7 @@ The existing `Song` dataclass stores every CSV field:
 | `acousticness` | Match to `likes_acoustic` |
 | `tempo_bpm`, `valence`, `danceability` | Retained for future scoring experiments |
 
-The existing `UserProfile` stores `favorite_genre: str`, `favorite_mood: str`, `target_energy: float` (0 to 1), and `likes_acoustic: bool`. It expresses explicit preferences; it does not infer taste from listening history. Keep these interfaces compatible with the starter tests. The functional runner currently uses `genre`, `mood`, and `energy` dictionary keys; implementation should adapt those to the same recipe, with missing acoustic preference meaning no acoustic contribution.
+The existing `UserProfile` stores `favorite_genre: str`, `favorite_mood: str`, `target_energy: float` (0 to 1), and `likes_acoustic: bool`. It expresses explicit preferences; it does not infer taste from listening history. Keep these interfaces compatible with the starter tests. The functional runner currently uses `genre`, `mood`, and `energy` dictionary keys; the shared scorer adapts those to the same recipe, with missing acoustic preference meaning no acoustic contribution.
 
 ### Example taste profile and critique
 
@@ -44,7 +44,7 @@ user_profile = {
 }
 ```
 
-This is a simulation persona, not a claim about the student's personal taste. It can be passed to `UserProfile(**user_profile)` once the recommender is implemented. The functional interface will map the first three keys to `genre`, `mood`, and `energy`, and retain `likes_acoustic`.
+This is a simulation persona, not a claim about the student's personal taste. It can be passed to `UserProfile(**user_profile)`. The functional scorer accepts either these descriptive keys or the shorter `genre`, `mood`, and `energy` keys used by the CLI; shorter keys take precedence when both are supplied. Missing or `None` acoustic preference omits that component.
 
 Profile critique prompt:
 
@@ -87,7 +87,7 @@ For the requested separate chat, open a session titled **Scoring Logic Design**,
 
 This plan was prepared in the current chat; a separate chat session has not been created by the assistant.
 
-### Proposed modular flow
+### Modular flow
 
 ```text
 Input: user preferences + data/songs.csv
@@ -98,11 +98,43 @@ Input: user preferences + data/songs.csv
   -> output: top k recommendations with scores and explanations
 ```
 
-Use one scoring recipe shared by the functional and object-oriented interfaces. `Recommender.recommend` should rank songs; `explain_recommendation` should describe the same contributions used to score them. An explanation should identify actual matches and distances rather than claim certainty about enjoyment.
+One scoring recipe is shared by the functional and object-oriented interfaces. `Recommender.recommend` ranks songs; `explain_recommendation` describes the same contributions used to score them. Explanations identify actual matches and distances rather than claim certainty about enjoyment.
+
+### Implementation and sorting
+
+`load_songs` uses Python's `csv.DictReader` and returns dictionaries with integer IDs and floats for energy, tempo, valence, danceability, and acousticness. It rejects missing or extra columns, incomplete rows, duplicate IDs, invalid normalized values, and nonpositive or nonfinite tempo with clear errors. `score_song` returns `(score, reasons)`, where reasons is a list of strings describing each normalized contribution. `recommend_songs` scores each song and returns `(song, score, explanation)` tuples, joining the reasons for display.
+
+`sorted(items, key=...)` returns a new sorted list and leaves the input order intact. `items.sort(key=...)` changes an existing list in place and returns `None`. This implementation uses `sorted` on scored results with `(-score, numeric_id)` as the key, preserving the catalog and sorting full-precision scores before slicing the top k. Displayed contributions are rounded independently, so their sum may differ slightly from the displayed final score.
 
 ### Expected biases in this plan
 
 Genre has the largest individual weight, so the system may overlook songs that fit the mood but use unfamiliar genre labels. Lofi and chill still have three examples each, while the new genres and moods have one each; expanding coverage does not balance the catalog. Exact matching misses related styles, and a fixed profile cannot represent changing contexts. The invented numeric attributes also reflect the author's assumptions about music. Assess relevance and genre/artist variety together before making claims about recommendation quality.
+
+## Sample Recommendation Output
+
+Actual output from `python -m src.main` with the default pop/happy profile. Sunrise City matches both labels; Gym Hero matches genre, while Rooftop Lights matches mood. The remaining results match neither label and rank by energy closeness. No acoustic preference is supplied, so the three active weights are normalized by 0.90.
+
+```text
+Loaded songs: 18
+Profile: genre=pop, mood=happy, target energy=0.80
+
+Top 5 recommendations:
+
+1. Sunrise City - Neon Echo | Score: 0.996
+   Reasons: genre match (+0.444); mood match (+0.333); energy distance 0.020 (+0.218); acousticness omitted; active weights normalized by 0.90
+
+2. Gym Hero - Max Pulse | Score: 0.638
+   Reasons: genre match (+0.444); mood mismatch (+0.000); energy distance 0.130 (+0.193); acousticness omitted; active weights normalized by 0.90
+
+3. Rooftop Lights - Indigo Parade | Score: 0.547
+   Reasons: genre mismatch (+0.000); mood match (+0.333); energy distance 0.040 (+0.213); acousticness omitted; active weights normalized by 0.90
+
+4. Night Drive Loop - Neon Echo | Score: 0.211
+   Reasons: genre mismatch (+0.000); mood mismatch (+0.000); energy distance 0.050 (+0.211); acousticness omitted; active weights normalized by 0.90
+
+5. Brass Horizon - Copper Steps | Score: 0.209
+   Reasons: genre mismatch (+0.000); mood mismatch (+0.000); energy distance 0.060 (+0.209); acousticness omitted; active weights normalized by 0.90
+```
 
 ## Phase 1 Data Analysis
 
@@ -140,7 +172,7 @@ These are examples of data a recommender may use, not a claim that every platfor
 
 ## Limitations and Bias
 
-These are anticipated risks, not measured outcomes from the unfinished implementation:
+These are anticipated risks; the CLI checks do not establish recommendation quality across listeners:
 
 - Matching the same genre and mood repeatedly can create a filter bubble and suppress discovery.
 - Lofi and chill each have three examples, while several genres and moods have one. Some profiles therefore have fewer relevant candidates and less variety.
@@ -155,8 +187,8 @@ Future improvements: test diverse and unsupported profiles, compare weight setti
 
 Phase 1 research, CSV analysis, architecture, and scoring/ranking design are documented. The local repository tracks the student's GitHub fork as `origin` and CodePath as `upstream`. A separate VS Code workspace file is included.
 
-The Python implementation, executable sample output, weight experiments, and evaluated Model Card belong to later phases and remain unfinished in the starter. The starter tests are too weak to establish implementation correctness: returning the original list and a placeholder explanation can satisfy them. Do not present such a pass as evidence of a working recommender.
+CSV loading, scoring, ranking, explanations, and the module CLI are implemented. Automated tests cover known score calculations, missing acoustic preference, numerical validation, profile aliases, ranking independently of input order, ties, k boundaries, dataclass consistency, and CLI output. Run them with `python -m pytest` after installing pytest if needed (`python -m pip install pytest`). The core CLI uses only the Python standard library.
 
-Before implementation, also fix the starter's `src/main.py` import (`from recommender ...`) to support its advertised `python -m src.main` invocation. No dependency installation is needed for this documentation phase.
+Run `python -m src.main` from the project root. Its package-relative import supports module execution, and the CSV path is resolved relative to the project files. Weight experiments, listener evaluation, and an evaluated Model Card remain future work.
 
 See [Phase 1 AI notes](phase1_ai_notes.md) for the assistant's role and suggested follow-up prompts. The student's personal reflection and taste assessment require their own review.

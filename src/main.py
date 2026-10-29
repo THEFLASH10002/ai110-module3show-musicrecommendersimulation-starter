@@ -1,32 +1,23 @@
-"""
-Command line runner for the Music Recommender Simulation.
+"""Run the CLI-first music recommender with the default pop/happy profile."""
 
-This file helps you quickly run and test your recommender.
+from pathlib import Path
 
-You will implement the functions in recommender.py:
-- load_songs
-- score_song
-- recommend_songs
-"""
-
-from recommender import load_songs, recommend_songs
+from .recommender import load_songs, recommend_songs
 
 
 def main() -> None:
-    songs = load_songs("data/songs.csv") 
-
-    # Starter example profile
+    """Load the catalog and print ranked songs with their scoring reasons."""
+    catalog = Path(__file__).resolve().parents[1] / "data" / "songs.csv"
+    songs = load_songs(catalog)
     user_prefs = {"genre": "pop", "mood": "happy", "energy": 0.8}
-
     recommendations = recommend_songs(user_prefs, songs, k=5)
 
-    print("\nTop recommendations:\n")
-    for rec in recommendations:
-        # You decide the structure of each returned item.
-        # A common pattern is: (song, score, explanation)
-        song, score, explanation = rec
-        print(f"{song['title']} - Score: {score:.2f}")
-        print(f"Because: {explanation}")
+    print(f"Loaded songs: {len(songs)}")
+    print("Profile: genre=pop, mood=happy, target energy=0.80")
+    print("\nTop 5 recommendations:\n")
+    for rank, (song, score, explanation) in enumerate(recommendations, start=1):
+        print(f"{rank}. {song['title']} - {song['artist']} | Score: {score:.3f}")
+        print(f"   Reasons: {explanation}")
         print()
 
 
