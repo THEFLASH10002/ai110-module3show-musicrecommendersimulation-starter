@@ -16,7 +16,7 @@ The data expansion prompt for this step is:
 
 > Generate eight fictional songs as valid CSV using exactly these headers: id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness. Use unique IDs 11–18. Introduce genres outside pop, lofi, rock, ambient, jazz, synthwave, and indie pop, and moods outside happy, chill, intense, relaxed, moody, and focused. Keep all normalized numerical features within 0.0–1.0 and tempo positive. Return the header and eight complete rows with no extra columns.
 
-Danceability and acousticness already provide the suggested extra numerical depth, alongside tempo and valence. Keep these existing columns rather than adding duplicate features. Only acousticness joins energy in the initial scoring recipe; the others remain available for later experiments.
+Danceability and acousticness already provide the suggested extra numerical depth, alongside tempo and valence. Keep these existing columns rather than adding duplicate features. The advanced extension below adds five distinct attributes. Only acousticness joins energy in the core recipe; the advanced extension adds optional terms without reusing tempo, valence, or danceability.
 
 The existing `Song` dataclass stores every CSV field:
 
@@ -29,7 +29,7 @@ The existing `Song` dataclass stores every CSV field:
 | `acousticness` | Match to `likes_acoustic` |
 | `tempo_bpm`, `valence`, `danceability` | Retained for future scoring experiments |
 
-The existing `UserProfile` stores `favorite_genre: str`, `favorite_mood: str`, `target_energy: float` (0 to 1), and `likes_acoustic: bool`. It expresses explicit preferences; it does not infer taste from listening history. Keep these interfaces compatible with the starter tests. The functional runner currently uses `genre`, `mood`, and `energy` dictionary keys; the shared scorer adapts those to the same recipe, with missing acoustic preference meaning no acoustic contribution.
+The existing `UserProfile` stores `favorite_genre: str`, `favorite_mood: str`, `target_energy: float` (0 to 1), and `likes_acoustic: bool`. It expresses explicit preferences; it does not infer taste from listening history. Keep these interfaces compatible with the starter tests. The functional runner uses `genre`, `mood`, and `energy` dictionary keys; the shared scorer adapts those to the same recipe, with missing acoustic preference meaning no acoustic contribution.
 
 ### Example taste profile and critique
 
@@ -117,28 +117,36 @@ Actual output from `python -m src.main` with the default pop/happy profile. Sunr
 ```text
 Loaded songs: 18
 Profile: genre=pop, mood=happy, target energy=0.80
+Mode: baseline | Diversity: off
 
-Top 5 recommendations:
-
-1. Sunrise City - Neon Echo | Score: 0.996
-   Reasons: genre match (+0.444); mood match (+0.333); energy distance 0.020 (+0.218); acousticness omitted; active weights normalized by 0.90
-
-2. Gym Hero - Max Pulse | Score: 0.638
-   Reasons: genre match (+0.444); mood mismatch (+0.000); energy distance 0.130 (+0.193); acousticness omitted; active weights normalized by 0.90
-
-3. Rooftop Lights - Indigo Parade | Score: 0.547
-   Reasons: genre mismatch (+0.000); mood match (+0.333); energy distance 0.040 (+0.213); acousticness omitted; active weights normalized by 0.90
-
-4. Night Drive Loop - Neon Echo | Score: 0.211
-   Reasons: genre mismatch (+0.000); mood mismatch (+0.000); energy distance 0.050 (+0.211); acousticness omitted; active weights normalized by 0.90
-
-5. Brass Horizon - Copper Steps | Score: 0.209
-   Reasons: genre mismatch (+0.000); mood mismatch (+0.000); energy distance 0.060 (+0.209); acousticness omitted; active weights normalized by 0.90
+Top 5 recommendations (adjusted scores when diversity is on):
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| Rank | Song                 | Artist          | Score   | Reasons                                                            |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 1    | Sunrise City         | Neon Echo       | 0.996   | genre match (+0.444); mood match (+0.333); energy distance 0.020   |
+|      |                      |                 |         | (+0.218); acousticness omitted; active weights normalized by 0.90  |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 2    | Gym Hero             | Max Pulse       | 0.638   | genre match (+0.444); mood mismatch (+0.000); energy distance      |
+|      |                      |                 |         | 0.130 (+0.193); acousticness omitted; active weights normalized by |
+|      |                      |                 |         | 0.90                                                               |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 3    | Rooftop Lights       | Indigo Parade   | 0.547   | genre mismatch (+0.000); mood match (+0.333); energy distance      |
+|      |                      |                 |         | 0.040 (+0.213); acousticness omitted; active weights normalized by |
+|      |                      |                 |         | 0.90                                                               |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 4    | Night Drive Loop     | Neon Echo       | 0.211   | genre mismatch (+0.000); mood mismatch (+0.000); energy distance   |
+|      |                      |                 |         | 0.050 (+0.211); acousticness omitted; active weights normalized by |
+|      |                      |                 |         | 0.90                                                               |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 5    | Brass Horizon        | Copper Steps    | 0.209   | genre mismatch (+0.000); mood mismatch (+0.000); energy distance   |
+|      |                      |                 |         | 0.060 (+0.209); acousticness omitted; active weights normalized by |
+|      |                      |                 |         | 0.90                                                               |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
 ```
 
 ## Phase 1 Data Analysis
 
-The original starter CSV audit below records 10 rows, 10 unique IDs, 10 columns, and no missing cells. It is a historical baseline; the expanded CSV now has 18 rows, 18 unique IDs, and the same 10 columns.
+The original starter CSV audit below records 10 rows, 10 unique IDs, 10 columns, and no missing cells. It is a historical baseline; the expanded CSV now has 18 rows, 18 unique IDs, and 15 columns, including the five advanced features below.
 
 | Attribute | Observed values |
 | --- | --- |
@@ -194,3 +202,38 @@ Run `python -m src.main` from the project root. Its package-relative import supp
 The completed [model card](model_card.md) records all eight profile/recipe outputs, all six pairwise profile comparisons, the weight experiment, observed limitations, and a reflection draft for the student to personalize. The experiment changes rankings but does not establish improved listener satisfaction. Human listener evaluation remains future work.
 
 See [Phase 1 AI notes](phase1_ai_notes.md) for the assistant's role and suggested follow-up prompts. The student's personal reflection and taste assessment require their own review.
+
+## Advanced Features, Modes, and Diversity
+
+The catalog has five new attributes on all 18 songs. These values are invented for the simulation, including popularity and decade; they are not measurements or real release metadata. Original song fields are preserved. Advanced preferences are optional; absent targets add no weight. Run this example to activate all five:
+
+```console
+python -m src.main --advanced --mode mood-first --diversity
+python -m src.main --evaluate --advanced --mode energy-focus --diversity
+```
+
+`--advanced` adds explicit demonstration targets: popularity 60, decade 2010, duration 210 seconds, tags consisting of the profile's mood plus nostalgic, and instrumentalness 0.9 for the acoustic-preferring example profiles or 0.1 for the others. These are editable simulation choices, not inferred user preferences or a claim that acoustic music is always instrumental. Set the individual dictionary keys in Python to express another taste.
+
+| CSV attribute | Preference key | Similarity calculation |
+| --- | --- | --- |
+| `popularity` (integer 0?100) | `target_popularity` | `1 - abs(song - target) / 100` |
+| `release_decade` (1900?2090, multiple of 10) | `preferred_decade` | `max(0, 1 - abs(song - target) / 100)` |
+| `detailed_mood_tags` (semicolon-separated text) | `mood_tags` (tuple or semicolon-separated text) | Fraction of requested unique tags present; trim and case-fold labels |
+| `duration_seconds` (positive finite number) | `target_duration_seconds` | `max(0, 1 - abs(song - target) / 300)` |
+| `instrumentalness` (0?1) | `target_instrumentalness` | `1 - abs(song - target)` |
+
+Every requested advanced feature receives raw weight 0.10. Add those weights to the active core weights, then divide every contribution by that total. Five advanced preferences without acoustic preference give an active total of 1.40; including acoustic preference gives 1.50. All similarities and the final base score stay between zero and one. A decade gap of 100 years or duration gap of 300 seconds earns zero for that feature. Popularity matches a requested level, so it can reward less popular songs rather than always favoring hits.
+
+`ScoringStrategy` is a frozen weight configuration selected from `SCORING_STRATEGIES`; one shared scorer applies it. This lightweight Strategy pattern avoids duplicated formulas and validation. Modes affect the core weights; advanced feature weights remain the same:
+
+| Mode (`--mode`, also accepted as `--recipe`) | Genre | Mood | Energy | Acousticness |
+| --- | --- | --- | --- | --- |
+| `genre-first` / `baseline` | 0.40 | 0.30 | 0.20 | 0.10 |
+| `mood-first` | 0.20 | 0.50 | 0.20 | 0.10 |
+| `energy-focus` | 0.20 | 0.30 | 0.40 | 0.10 |
+
+`--diversity` enables greedy selection. After every choice, each remaining candidate loses 0.12 for each already selected song by its artist and 0.06 for each already selected song in its genre. Select the highest adjusted score, break ties by numeric ID, and repeat. Artist and genre comparisons ignore case and spaces. Penalties use counts, so a third song receives a larger penalty than a second. The Python API accepts `artist_penalty` and `genre_penalty` values from 0 to 1; zero disables that part.
+
+This is a soft preference for variety, not a hard artist quota or a demographic fairness guarantee. A sufficiently relevant repeat can still win. Adjusted scores may be negative and depend on previous choices; they are not probabilities or independent per-song similarities. The reasons show the base score, artist penalty, genre penalty, and adjusted score. The dataclass interface accepts mode and diversity options too; request `diversity=True` in its explanation method to include the same selection penalties.
+
+The CLI uses an ASCII table with rank, song, artist, score, and full wrapped reasons. It uses only the standard library and does not truncate explanations. Baseline mode without advanced preferences or diversity preserves earlier rankings. See [AI interactions](ai_interactions.md) for prompts and verification notes, and the [model card](model_card.md) for advanced behavior and limitations.

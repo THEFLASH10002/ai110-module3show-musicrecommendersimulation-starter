@@ -1,19 +1,19 @@
-id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness
-1,Sunrise City,Neon Echo,pop,happy,0.82,118,0.84,0.79,0.18
-2,Midnight Coding,LoRoom,lofi,chill,0.42,78,0.56,0.62,0.71
-3,Storm Runner,Voltline,rock,intense,0.91,152,0.48,0.66,0.10
-4,Library Rain,Paper Lanterns,lofi,chill,0.35,72,0.60,0.58,0.86
-5,Gym Hero,Max Pulse,pop,intense,0.93,132,0.77,0.88,0.05
-6,Spacewalk Thoughts,Orbit Bloom,ambient,chill,0.28,60,0.65,0.41,0.92
-7,Coffee Shop Stories,Slow Stereo,jazz,relaxed,0.37,90,0.71,0.54,0.89
-8,Night Drive Loop,Neon Echo,synthwave,moody,0.75,110,0.49,0.73,0.22
-9,Focus Flow,LoRoom,lofi,focused,0.40,80,0.59,0.60,0.78
-10,Rooftop Lights,Indigo Parade,indie pop,happy,0.76,124,0.81,0.82,0.35
-11,Desert Lantern,Saffron Roads,folk,reflective,0.32,84,0.43,0.46,0.94
-12,Brass Horizon,Copper Steps,ska,playful,0.86,146,0.91,0.87,0.28
-13,Last Train Letter,Juniper Vale,country,melancholic,0.44,96,0.24,0.52,0.81
-14,Velvet Promise,Amara Blue,soul,romantic,0.51,88,0.72,0.65,0.63
-15,Concrete Anthem,Verse Atlas,hip hop,defiant,0.88,102,0.38,0.84,0.09
-16,Glass Cathedral,Silver Quartet,classical,solemn,0.24,66,0.21,0.18,0.98
-17,Island Tomorrow,Tide Assembly,reggae,hopeful,0.58,92,0.86,0.78,0.47
-18,Afterglow Circuit,Prism Current,house,euphoric,0.89,126,0.93,0.95,0.04
+id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness,popularity,release_decade,detailed_mood_tags,duration_seconds,instrumentalness
+1,Sunrise City,Neon Echo,pop,happy,0.82,118,0.84,0.79,0.18,88,2020,hopeful;euphoric,208,0.05
+2,Midnight Coding,LoRoom,lofi,chill,0.42,78,0.56,0.62,0.71,48,2010,nostalgic;dreamy,174,0.96
+3,Storm Runner,Voltline,rock,intense,0.91,152,0.48,0.66,0.10,76,2000,aggressive;determined,242,0.12
+4,Library Rain,Paper Lanterns,lofi,chill,0.35,72,0.60,0.58,0.86,37,2020,peaceful;nostalgic,196,0.99
+5,Gym Hero,Max Pulse,pop,intense,0.93,132,0.77,0.88,0.05,92,2020,determined;triumphant,185,0.03
+6,Spacewalk Thoughts,Orbit Bloom,ambient,chill,0.28,60,0.65,0.41,0.92,26,1990,dreamy;contemplative,360,1.0
+7,Coffee Shop Stories,Slow Stereo,jazz,relaxed,0.37,90,0.71,0.54,0.89,43,1980,warm;intimate,278,0.88
+8,Night Drive Loop,Neon Echo,synthwave,moody,0.75,110,0.49,0.73,0.22,64,2010,nostalgic;brooding,231,0.92
+9,Focus Flow,LoRoom,lofi,focused,0.40,80,0.59,0.60,0.78,33,2020,contemplative;peaceful,162,0.98
+10,Rooftop Lights,Indigo Parade,indie pop,happy,0.76,124,0.81,0.82,0.35,71,2010,hopeful;carefree,216,0.08
+11,Desert Lantern,Saffron Roads,folk,reflective,0.32,84,0.43,0.46,0.94,21,1970,nostalgic;wistful,254,0.15
+12,Brass Horizon,Copper Steps,ska,playful,0.86,146,0.91,0.87,0.28,58,1990,carefree;celebratory,201,0.1
+13,Last Train Letter,Juniper Vale,country,melancholic,0.44,96,0.24,0.52,0.81,46,2000,wistful;heartbroken,263,0.04
+14,Velvet Promise,Amara Blue,soul,romantic,0.51,88,0.72,0.65,0.63,62,1970,intimate;warm,225,0.06
+15,Concrete Anthem,Verse Atlas,hip hop,defiant,0.88,102,0.38,0.84,0.09,81,2020,aggressive;determined,193,0.02
+16,Glass Cathedral,Silver Quartet,classical,solemn,0.24,66,0.21,0.18,0.98,18,1960,contemplative;sorrowful,425,1.0
+17,Island Tomorrow,Tide Assembly,reggae,hopeful,0.58,92,0.86,0.78,0.47,55,1980,hopeful;carefree,238,0.07
+18,Afterglow Circuit,Prism Current,house,euphoric,0.89,126,0.93,0.95,0.04,79,2020,euphoric;celebratory,312,0.94

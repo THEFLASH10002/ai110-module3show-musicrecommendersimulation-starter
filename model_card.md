@@ -20,7 +20,7 @@ The optional **energy-focus** experiment halves genre's weight to 20% and double
 
 ## 4. Data Used
 
-There are 18 songs with 10 fields: ID, title, artist, genre, mood, energy, tempo, valence, danceability, and acousticness. The original 10 songs were kept and eight fictional songs were added. The added numeric labels are synthetic examples, not audio measurements. There are no recordings or listener ratings in this project.
+The original catalog schema had 10 fields: ID, title, artist, genre, mood, energy, tempo, valence, danceability, and acousticness. The original 10 songs were kept and eight fictional songs were added. The added numeric labels are synthetic examples, not audio measurements. There are no recordings or listener ratings in this project. The advanced extension now stores 18 songs with 15 fields, adding popularity, release decade, detailed mood tags, duration, and instrumentalness. All five added values are synthetic on every row.
 
 The catalog covers 15 genres and 14 moods. Lofi and chill each occur three times; pop and happy each occur twice. Rock has only one example. New genres include folk, ska, country, soul, hip hop, classical, reggae, and house. There is no exact mood label `sad`, though `melancholic` is present. Tempo, valence, and danceability are loaded but do not affect the current score. Lyrics, language, context, and personal associations are missing.
 
@@ -95,29 +95,37 @@ This evaluation was performed in the current chat. A separate chat session canno
 
 ### Captured terminal output
 
-The following blocks are captured from the two evaluation commands above. Each includes the profile, recipe, five results, scores, and reasons.
+The earlier baseline evaluation is reproduced below using the current table display. Advanced preferences and diversity are off, so its scores and rankings are unchanged.
 
 ```text
 Loaded songs: 18
 === High-Energy Pop | baseline ===
 Profile: genre=pop, mood=happy, target energy=0.80
+Mode: baseline | Diversity: off
 
-Top 5 recommendations:
-
-1. Sunrise City - Neon Echo | Score: 0.996
-   Reasons: genre match (+0.444); mood match (+0.333); energy distance 0.020 (+0.218); acousticness omitted; active weights normalized by 0.90
-
-2. Gym Hero - Max Pulse | Score: 0.638
-   Reasons: genre match (+0.444); mood mismatch (+0.000); energy distance 0.130 (+0.193); acousticness omitted; active weights normalized by 0.90
-
-3. Rooftop Lights - Indigo Parade | Score: 0.547
-   Reasons: genre mismatch (+0.000); mood match (+0.333); energy distance 0.040 (+0.213); acousticness omitted; active weights normalized by 0.90
-
-4. Night Drive Loop - Neon Echo | Score: 0.211
-   Reasons: genre mismatch (+0.000); mood mismatch (+0.000); energy distance 0.050 (+0.211); acousticness omitted; active weights normalized by 0.90
-
-5. Brass Horizon - Copper Steps | Score: 0.209
-   Reasons: genre mismatch (+0.000); mood mismatch (+0.000); energy distance 0.060 (+0.209); acousticness omitted; active weights normalized by 0.90
+Top 5 recommendations (adjusted scores when diversity is on):
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| Rank | Song                 | Artist          | Score   | Reasons                                                            |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 1    | Sunrise City         | Neon Echo       | 0.996   | genre match (+0.444); mood match (+0.333); energy distance 0.020   |
+|      |                      |                 |         | (+0.218); acousticness omitted; active weights normalized by 0.90  |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 2    | Gym Hero             | Max Pulse       | 0.638   | genre match (+0.444); mood mismatch (+0.000); energy distance      |
+|      |                      |                 |         | 0.130 (+0.193); acousticness omitted; active weights normalized by |
+|      |                      |                 |         | 0.90                                                               |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 3    | Rooftop Lights       | Indigo Parade   | 0.547   | genre mismatch (+0.000); mood match (+0.333); energy distance      |
+|      |                      |                 |         | 0.040 (+0.213); acousticness omitted; active weights normalized by |
+|      |                      |                 |         | 0.90                                                               |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 4    | Night Drive Loop     | Neon Echo       | 0.211   | genre mismatch (+0.000); mood mismatch (+0.000); energy distance   |
+|      |                      |                 |         | 0.050 (+0.211); acousticness omitted; active weights normalized by |
+|      |                      |                 |         | 0.90                                                               |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 5    | Brass Horizon        | Copper Steps    | 0.209   | genre mismatch (+0.000); mood mismatch (+0.000); energy distance   |
+|      |                      |                 |         | 0.060 (+0.209); acousticness omitted; active weights normalized by |
+|      |                      |                 |         | 0.90                                                               |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
 ```
 
 ```text
@@ -125,23 +133,27 @@ Loaded songs: 18
 === Chill Lofi | baseline ===
 Profile: genre=lofi, mood=chill, target energy=0.40
 Acoustic preference: True
+Mode: baseline | Diversity: off
 
-Top 5 recommendations:
-
-1. Library Rain - Paper Lanterns | Score: 0.976
-   Reasons: genre match (+0.400); mood match (+0.300); energy distance 0.050 (+0.190); higher acousticness similarity 0.860 (+0.086)
-
-2. Midnight Coding - LoRoom | Score: 0.967
-   Reasons: genre match (+0.400); mood match (+0.300); energy distance 0.020 (+0.196); higher acousticness similarity 0.710 (+0.071)
-
-3. Focus Flow - LoRoom | Score: 0.678
-   Reasons: genre match (+0.400); mood mismatch (+0.000); energy distance 0.000 (+0.200); higher acousticness similarity 0.780 (+0.078)
-
-4. Spacewalk Thoughts - Orbit Bloom | Score: 0.568
-   Reasons: genre mismatch (+0.000); mood match (+0.300); energy distance 0.120 (+0.176); higher acousticness similarity 0.920 (+0.092)
-
-5. Coffee Shop Stories - Slow Stereo | Score: 0.283
-   Reasons: genre mismatch (+0.000); mood mismatch (+0.000); energy distance 0.030 (+0.194); higher acousticness similarity 0.890 (+0.089)
+Top 5 recommendations (adjusted scores when diversity is on):
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| Rank | Song                 | Artist          | Score   | Reasons                                                            |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 1    | Library Rain         | Paper Lanterns  | 0.976   | genre match (+0.400); mood match (+0.300); energy distance 0.050   |
+|      |                      |                 |         | (+0.190); higher acousticness similarity 0.860 (+0.086)            |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 2    | Midnight Coding      | LoRoom          | 0.967   | genre match (+0.400); mood match (+0.300); energy distance 0.020   |
+|      |                      |                 |         | (+0.196); higher acousticness similarity 0.710 (+0.071)            |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 3    | Focus Flow           | LoRoom          | 0.678   | genre match (+0.400); mood mismatch (+0.000); energy distance      |
+|      |                      |                 |         | 0.000 (+0.200); higher acousticness similarity 0.780 (+0.078)      |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 4    | Spacewalk Thoughts   | Orbit Bloom     | 0.568   | genre mismatch (+0.000); mood match (+0.300); energy distance      |
+|      |                      |                 |         | 0.120 (+0.176); higher acousticness similarity 0.920 (+0.092)      |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 5    | Coffee Shop Stories  | Slow Stereo     | 0.283   | genre mismatch (+0.000); mood mismatch (+0.000); energy distance   |
+|      |                      |                 |         | 0.030 (+0.194); higher acousticness similarity 0.890 (+0.089)      |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
 ```
 
 ```text
@@ -149,23 +161,27 @@ Loaded songs: 18
 === Deep Intense Rock | baseline ===
 Profile: genre=rock, mood=intense, target energy=0.95
 Acoustic preference: False
+Mode: baseline | Diversity: off
 
-Top 5 recommendations:
-
-1. Storm Runner - Voltline | Score: 0.982
-   Reasons: genre match (+0.400); mood match (+0.300); energy distance 0.040 (+0.192); lower acousticness similarity 0.900 (+0.090)
-
-2. Gym Hero - Max Pulse | Score: 0.591
-   Reasons: genre mismatch (+0.000); mood match (+0.300); energy distance 0.020 (+0.196); lower acousticness similarity 0.950 (+0.095)
-
-3. Afterglow Circuit - Prism Current | Score: 0.284
-   Reasons: genre mismatch (+0.000); mood mismatch (+0.000); energy distance 0.060 (+0.188); lower acousticness similarity 0.960 (+0.096)
-
-4. Concrete Anthem - Verse Atlas | Score: 0.277
-   Reasons: genre mismatch (+0.000); mood mismatch (+0.000); energy distance 0.070 (+0.186); lower acousticness similarity 0.910 (+0.091)
-
-5. Sunrise City - Neon Echo | Score: 0.256
-   Reasons: genre mismatch (+0.000); mood mismatch (+0.000); energy distance 0.130 (+0.174); lower acousticness similarity 0.820 (+0.082)
+Top 5 recommendations (adjusted scores when diversity is on):
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| Rank | Song                 | Artist          | Score   | Reasons                                                            |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 1    | Storm Runner         | Voltline        | 0.982   | genre match (+0.400); mood match (+0.300); energy distance 0.040   |
+|      |                      |                 |         | (+0.192); lower acousticness similarity 0.900 (+0.090)             |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 2    | Gym Hero             | Max Pulse       | 0.591   | genre mismatch (+0.000); mood match (+0.300); energy distance      |
+|      |                      |                 |         | 0.020 (+0.196); lower acousticness similarity 0.950 (+0.095)       |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 3    | Afterglow Circuit    | Prism Current   | 0.284   | genre mismatch (+0.000); mood mismatch (+0.000); energy distance   |
+|      |                      |                 |         | 0.060 (+0.188); lower acousticness similarity 0.960 (+0.096)       |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 4    | Concrete Anthem      | Verse Atlas     | 0.277   | genre mismatch (+0.000); mood mismatch (+0.000); energy distance   |
+|      |                      |                 |         | 0.070 (+0.186); lower acousticness similarity 0.910 (+0.091)       |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 5    | Sunrise City         | Neon Echo       | 0.256   | genre mismatch (+0.000); mood mismatch (+0.000); energy distance   |
+|      |                      |                 |         | 0.130 (+0.174); lower acousticness similarity 0.820 (+0.082)       |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
 ```
 
 ```text
@@ -173,46 +189,58 @@ Loaded songs: 18
 === Conflicting Lofi | baseline ===
 Profile: genre=lofi, mood=sad, target energy=0.90
 Acoustic preference: True
+Mode: baseline | Diversity: off
 
-Top 5 recommendations:
-
-1. Focus Flow - LoRoom | Score: 0.578
-   Reasons: genre match (+0.400); mood mismatch (+0.000); energy distance 0.500 (+0.100); higher acousticness similarity 0.780 (+0.078)
-
-2. Library Rain - Paper Lanterns | Score: 0.576
-   Reasons: genre match (+0.400); mood mismatch (+0.000); energy distance 0.550 (+0.090); higher acousticness similarity 0.860 (+0.086)
-
-3. Midnight Coding - LoRoom | Score: 0.575
-   Reasons: genre match (+0.400); mood mismatch (+0.000); energy distance 0.480 (+0.104); higher acousticness similarity 0.710 (+0.071)
-
-4. Brass Horizon - Copper Steps | Score: 0.220
-   Reasons: genre mismatch (+0.000); mood mismatch (+0.000); energy distance 0.040 (+0.192); higher acousticness similarity 0.280 (+0.028)
-
-5. Storm Runner - Voltline | Score: 0.208
-   Reasons: genre mismatch (+0.000); mood mismatch (+0.000); energy distance 0.010 (+0.198); higher acousticness similarity 0.100 (+0.010)
+Top 5 recommendations (adjusted scores when diversity is on):
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| Rank | Song                 | Artist          | Score   | Reasons                                                            |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 1    | Focus Flow           | LoRoom          | 0.578   | genre match (+0.400); mood mismatch (+0.000); energy distance      |
+|      |                      |                 |         | 0.500 (+0.100); higher acousticness similarity 0.780 (+0.078)      |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 2    | Library Rain         | Paper Lanterns  | 0.576   | genre match (+0.400); mood mismatch (+0.000); energy distance      |
+|      |                      |                 |         | 0.550 (+0.090); higher acousticness similarity 0.860 (+0.086)      |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 3    | Midnight Coding      | LoRoom          | 0.575   | genre match (+0.400); mood mismatch (+0.000); energy distance      |
+|      |                      |                 |         | 0.480 (+0.104); higher acousticness similarity 0.710 (+0.071)      |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 4    | Brass Horizon        | Copper Steps    | 0.220   | genre mismatch (+0.000); mood mismatch (+0.000); energy distance   |
+|      |                      |                 |         | 0.040 (+0.192); higher acousticness similarity 0.280 (+0.028)      |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 5    | Storm Runner         | Voltline        | 0.208   | genre mismatch (+0.000); mood mismatch (+0.000); energy distance   |
+|      |                      |                 |         | 0.010 (+0.198); higher acousticness similarity 0.100 (+0.010)      |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
 ```
 
 ```text
 Loaded songs: 18
 === High-Energy Pop | energy-focus ===
 Profile: genre=pop, mood=happy, target energy=0.80
+Mode: energy-focus | Diversity: off
 
-Top 5 recommendations:
-
-1. Sunrise City - Neon Echo | Score: 0.991
-   Reasons: genre match (+0.222); mood match (+0.333); energy distance 0.020 (+0.436); acousticness omitted; active weights normalized by 0.90
-
-2. Rooftop Lights - Indigo Parade | Score: 0.760
-   Reasons: genre mismatch (+0.000); mood match (+0.333); energy distance 0.040 (+0.427); acousticness omitted; active weights normalized by 0.90
-
-3. Gym Hero - Max Pulse | Score: 0.609
-   Reasons: genre match (+0.222); mood mismatch (+0.000); energy distance 0.130 (+0.387); acousticness omitted; active weights normalized by 0.90
-
-4. Night Drive Loop - Neon Echo | Score: 0.422
-   Reasons: genre mismatch (+0.000); mood mismatch (+0.000); energy distance 0.050 (+0.422); acousticness omitted; active weights normalized by 0.90
-
-5. Brass Horizon - Copper Steps | Score: 0.418
-   Reasons: genre mismatch (+0.000); mood mismatch (+0.000); energy distance 0.060 (+0.418); acousticness omitted; active weights normalized by 0.90
+Top 5 recommendations (adjusted scores when diversity is on):
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| Rank | Song                 | Artist          | Score   | Reasons                                                            |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 1    | Sunrise City         | Neon Echo       | 0.991   | genre match (+0.222); mood match (+0.333); energy distance 0.020   |
+|      |                      |                 |         | (+0.436); acousticness omitted; active weights normalized by 0.90  |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 2    | Rooftop Lights       | Indigo Parade   | 0.760   | genre mismatch (+0.000); mood match (+0.333); energy distance      |
+|      |                      |                 |         | 0.040 (+0.427); acousticness omitted; active weights normalized by |
+|      |                      |                 |         | 0.90                                                               |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 3    | Gym Hero             | Max Pulse       | 0.609   | genre match (+0.222); mood mismatch (+0.000); energy distance      |
+|      |                      |                 |         | 0.130 (+0.387); acousticness omitted; active weights normalized by |
+|      |                      |                 |         | 0.90                                                               |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 4    | Night Drive Loop     | Neon Echo       | 0.422   | genre mismatch (+0.000); mood mismatch (+0.000); energy distance   |
+|      |                      |                 |         | 0.050 (+0.422); acousticness omitted; active weights normalized by |
+|      |                      |                 |         | 0.90                                                               |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 5    | Brass Horizon        | Copper Steps    | 0.418   | genre mismatch (+0.000); mood mismatch (+0.000); energy distance   |
+|      |                      |                 |         | 0.060 (+0.418); acousticness omitted; active weights normalized by |
+|      |                      |                 |         | 0.90                                                               |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
 ```
 
 ```text
@@ -220,23 +248,27 @@ Loaded songs: 18
 === Chill Lofi | energy-focus ===
 Profile: genre=lofi, mood=chill, target energy=0.40
 Acoustic preference: True
+Mode: energy-focus | Diversity: off
 
-Top 5 recommendations:
-
-1. Library Rain - Paper Lanterns | Score: 0.966
-   Reasons: genre match (+0.200); mood match (+0.300); energy distance 0.050 (+0.380); higher acousticness similarity 0.860 (+0.086)
-
-2. Midnight Coding - LoRoom | Score: 0.963
-   Reasons: genre match (+0.200); mood match (+0.300); energy distance 0.020 (+0.392); higher acousticness similarity 0.710 (+0.071)
-
-3. Spacewalk Thoughts - Orbit Bloom | Score: 0.744
-   Reasons: genre mismatch (+0.000); mood match (+0.300); energy distance 0.120 (+0.352); higher acousticness similarity 0.920 (+0.092)
-
-4. Focus Flow - LoRoom | Score: 0.678
-   Reasons: genre match (+0.200); mood mismatch (+0.000); energy distance 0.000 (+0.400); higher acousticness similarity 0.780 (+0.078)
-
-5. Coffee Shop Stories - Slow Stereo | Score: 0.477
-   Reasons: genre mismatch (+0.000); mood mismatch (+0.000); energy distance 0.030 (+0.388); higher acousticness similarity 0.890 (+0.089)
+Top 5 recommendations (adjusted scores when diversity is on):
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| Rank | Song                 | Artist          | Score   | Reasons                                                            |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 1    | Library Rain         | Paper Lanterns  | 0.966   | genre match (+0.200); mood match (+0.300); energy distance 0.050   |
+|      |                      |                 |         | (+0.380); higher acousticness similarity 0.860 (+0.086)            |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 2    | Midnight Coding      | LoRoom          | 0.963   | genre match (+0.200); mood match (+0.300); energy distance 0.020   |
+|      |                      |                 |         | (+0.392); higher acousticness similarity 0.710 (+0.071)            |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 3    | Spacewalk Thoughts   | Orbit Bloom     | 0.744   | genre mismatch (+0.000); mood match (+0.300); energy distance      |
+|      |                      |                 |         | 0.120 (+0.352); higher acousticness similarity 0.920 (+0.092)      |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 4    | Focus Flow           | LoRoom          | 0.678   | genre match (+0.200); mood mismatch (+0.000); energy distance      |
+|      |                      |                 |         | 0.000 (+0.400); higher acousticness similarity 0.780 (+0.078)      |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 5    | Coffee Shop Stories  | Slow Stereo     | 0.477   | genre mismatch (+0.000); mood mismatch (+0.000); energy distance   |
+|      |                      |                 |         | 0.030 (+0.388); higher acousticness similarity 0.890 (+0.089)      |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
 ```
 
 ```text
@@ -244,23 +276,27 @@ Loaded songs: 18
 === Deep Intense Rock | energy-focus ===
 Profile: genre=rock, mood=intense, target energy=0.95
 Acoustic preference: False
+Mode: energy-focus | Diversity: off
 
-Top 5 recommendations:
-
-1. Storm Runner - Voltline | Score: 0.974
-   Reasons: genre match (+0.200); mood match (+0.300); energy distance 0.040 (+0.384); lower acousticness similarity 0.900 (+0.090)
-
-2. Gym Hero - Max Pulse | Score: 0.787
-   Reasons: genre mismatch (+0.000); mood match (+0.300); energy distance 0.020 (+0.392); lower acousticness similarity 0.950 (+0.095)
-
-3. Afterglow Circuit - Prism Current | Score: 0.472
-   Reasons: genre mismatch (+0.000); mood mismatch (+0.000); energy distance 0.060 (+0.376); lower acousticness similarity 0.960 (+0.096)
-
-4. Concrete Anthem - Verse Atlas | Score: 0.463
-   Reasons: genre mismatch (+0.000); mood mismatch (+0.000); energy distance 0.070 (+0.372); lower acousticness similarity 0.910 (+0.091)
-
-5. Brass Horizon - Copper Steps | Score: 0.436
-   Reasons: genre mismatch (+0.000); mood mismatch (+0.000); energy distance 0.090 (+0.364); lower acousticness similarity 0.720 (+0.072)
+Top 5 recommendations (adjusted scores when diversity is on):
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| Rank | Song                 | Artist          | Score   | Reasons                                                            |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 1    | Storm Runner         | Voltline        | 0.974   | genre match (+0.200); mood match (+0.300); energy distance 0.040   |
+|      |                      |                 |         | (+0.384); lower acousticness similarity 0.900 (+0.090)             |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 2    | Gym Hero             | Max Pulse       | 0.787   | genre mismatch (+0.000); mood match (+0.300); energy distance      |
+|      |                      |                 |         | 0.020 (+0.392); lower acousticness similarity 0.950 (+0.095)       |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 3    | Afterglow Circuit    | Prism Current   | 0.472   | genre mismatch (+0.000); mood mismatch (+0.000); energy distance   |
+|      |                      |                 |         | 0.060 (+0.376); lower acousticness similarity 0.960 (+0.096)       |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 4    | Concrete Anthem      | Verse Atlas     | 0.463   | genre mismatch (+0.000); mood mismatch (+0.000); energy distance   |
+|      |                      |                 |         | 0.070 (+0.372); lower acousticness similarity 0.910 (+0.091)       |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 5    | Brass Horizon        | Copper Steps    | 0.436   | genre mismatch (+0.000); mood mismatch (+0.000); energy distance   |
+|      |                      |                 |         | 0.090 (+0.364); lower acousticness similarity 0.720 (+0.072)       |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
 ```
 
 ```text
@@ -268,23 +304,27 @@ Loaded songs: 18
 === Conflicting Lofi | energy-focus ===
 Profile: genre=lofi, mood=sad, target energy=0.90
 Acoustic preference: True
+Mode: energy-focus | Diversity: off
 
-Top 5 recommendations:
-
-1. Midnight Coding - LoRoom | Score: 0.479
-   Reasons: genre match (+0.200); mood mismatch (+0.000); energy distance 0.480 (+0.208); higher acousticness similarity 0.710 (+0.071)
-
-2. Focus Flow - LoRoom | Score: 0.478
-   Reasons: genre match (+0.200); mood mismatch (+0.000); energy distance 0.500 (+0.200); higher acousticness similarity 0.780 (+0.078)
-
-3. Library Rain - Paper Lanterns | Score: 0.466
-   Reasons: genre match (+0.200); mood mismatch (+0.000); energy distance 0.550 (+0.180); higher acousticness similarity 0.860 (+0.086)
-
-4. Brass Horizon - Copper Steps | Score: 0.412
-   Reasons: genre mismatch (+0.000); mood mismatch (+0.000); energy distance 0.040 (+0.384); higher acousticness similarity 0.280 (+0.028)
-
-5. Storm Runner - Voltline | Score: 0.406
-   Reasons: genre mismatch (+0.000); mood mismatch (+0.000); energy distance 0.010 (+0.396); higher acousticness similarity 0.100 (+0.010)
+Top 5 recommendations (adjusted scores when diversity is on):
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| Rank | Song                 | Artist          | Score   | Reasons                                                            |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 1    | Midnight Coding      | LoRoom          | 0.479   | genre match (+0.200); mood mismatch (+0.000); energy distance      |
+|      |                      |                 |         | 0.480 (+0.208); higher acousticness similarity 0.710 (+0.071)      |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 2    | Focus Flow           | LoRoom          | 0.478   | genre match (+0.200); mood mismatch (+0.000); energy distance      |
+|      |                      |                 |         | 0.500 (+0.200); higher acousticness similarity 0.780 (+0.078)      |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 3    | Library Rain         | Paper Lanterns  | 0.466   | genre match (+0.200); mood mismatch (+0.000); energy distance      |
+|      |                      |                 |         | 0.550 (+0.180); higher acousticness similarity 0.860 (+0.086)      |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 4    | Brass Horizon        | Copper Steps    | 0.412   | genre mismatch (+0.000); mood mismatch (+0.000); energy distance   |
+|      |                      |                 |         | 0.040 (+0.384); higher acousticness similarity 0.280 (+0.028)      |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 5    | Storm Runner         | Voltline        | 0.406   | genre mismatch (+0.000); mood mismatch (+0.000); energy distance   |
+|      |                      |                 |         | 0.010 (+0.396); higher acousticness similarity 0.100 (+0.010)      |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
 ```
 
 ## 8. Ideas for Improvement
@@ -298,3 +338,71 @@ Top 5 recommendations:
 *Draft for the student to review and personalize. This describes the demonstrated engineering process; it does not claim personal listening experience.*
 
 The biggest learning moment was seeing that valid scoring math can still produce a poor fit when the requested music is missing. The conflicting profile showed this clearly: doubling energy changed the winner but still returned low-energy lofi. AI helped implement the loader, propose edge cases, and explain the rankings. Its suggestions needed checking against the actual catalog, hand calculations, and terminal output; a larger score alone did not prove a better recommendation. Simple rules can feel like recommendations because matching a few recognizable traits gives different listening sessions different results. Next, I would add more varied songs, ask listeners to rate the results, and use that feedback to compare weight choices.
+
+## 10. Advanced Extension
+
+Five new features can contribute when their targets are supplied: popularity, decade, detailed mood tags, duration, and instrumentalness. Each gets raw weight 0.10, and all active weights are normalized together. Popularity rewards closeness to a requested level, not fame alone. Three selectable strategies share one scorer: genre-first, mood-first, and energy-focus; baseline is an alias for genre-first. The original evaluation above uses only the core preferences.
+
+Diversity is optional. Each prior appearance of an artist subtracts 0.12 and each prior appearance of a genre subtracts 0.06 from a candidate. The system recomputes these penalties after each selection. Relevance can still outweigh a penalty, so this is not a quota. It offers variety across artist and genre labels, not proof of fairness to people or musical cultures. Displayed adjusted scores can be negative; explanations retain the base score and each penalty.
+
+Additional limitations: synthetic popularity and decade values cannot support conclusions about real trends. Exact detailed tags can miss synonyms; detailed tags and the main mood can count similar information twice. Treating all five extra preferences as equally important is a design choice without listener validation. The example instrumentalness targets are explicit simulation choices and do not imply a relationship between instrumental and acoustic music. The data schema admits decades from 1900 to 2090 for experimentation; those bounds are not a claim that a track has already been released.
+
+### Advanced example output
+
+Captured from `python -m src.main --advanced --mode mood-first --diversity`. Sunrise City still leads, but Rooftop Lights comes second because mood-first rewards happy more than the pop label. Gym Hero pays a repeated-genre penalty after Sunrise City. Night Drive Loop does not appear in this list, while Brass Horizon and Storm Runner provide other genres and artists. This example checks that the controls and reasons work; it does not measure listener satisfaction.
+
+```text
+Loaded songs: 18
+Profile: genre=pop, mood=happy, target energy=0.80
+Advanced preferences: {'target_popularity': 60, 'preferred_decade': 2010, 'mood_tags': ('happy', 'nostalgic'), 'target_duration_seconds': 210, 'target_instrumentalness': 0.1}
+Mode: mood-first | Diversity: on
+
+Top 5 recommendations (adjusted scores when diversity is on):
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| Rank | Song                 | Artist          | Score   | Reasons                                                            |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 1    | Sunrise City         | Neon Echo       | 0.895   | genre match (+0.143); mood match (+0.357); energy distance 0.020   |
+|      |                      |                 |         | (+0.140); acousticness omitted; active weights normalized by 1.40; |
+|      |                      |                 |         | popularity similarity 0.720 (+0.051); release decade similarity    |
+|      |                      |                 |         | 0.900 (+0.064); detailed mood tags similarity 0.000 (+0.000);      |
+|      |                      |                 |         | duration similarity 0.993 (+0.071); instrumentalness similarity    |
+|      |                      |                 |         | 0.950 (+0.068); base score 0.895; repeated artist penalty          |
+|      |                      |                 |         | (-0.000); repeated genre penalty (-0.000); adjusted score 0.895    |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 2    | Rooftop Lights       | Indigo Parade   | 0.769   | genre mismatch (+0.000); mood match (+0.357); energy distance      |
+|      |                      |                 |         | 0.040 (+0.137); acousticness omitted; active weights normalized by |
+|      |                      |                 |         | 1.40; popularity similarity 0.890 (+0.064); release decade         |
+|      |                      |                 |         | similarity 1.000 (+0.071); detailed mood tags similarity 0.000     |
+|      |                      |                 |         | (+0.000); duration similarity 0.980 (+0.070); instrumentalness     |
+|      |                      |                 |         | similarity 0.980 (+0.070); base score 0.769; repeated artist       |
+|      |                      |                 |         | penalty (-0.000); repeated genre penalty (-0.000); adjusted score  |
+|      |                      |                 |         | 0.769                                                              |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 3    | Gym Hero             | Max Pulse       | 0.452   | genre match (+0.143); mood mismatch (+0.000); energy distance      |
+|      |                      |                 |         | 0.130 (+0.124); acousticness omitted; active weights normalized by |
+|      |                      |                 |         | 1.40; popularity similarity 0.680 (+0.049); release decade         |
+|      |                      |                 |         | similarity 0.900 (+0.064); detailed mood tags similarity 0.000     |
+|      |                      |                 |         | (+0.000); duration similarity 0.917 (+0.065); instrumentalness     |
+|      |                      |                 |         | similarity 0.930 (+0.066); base score 0.512; repeated artist       |
+|      |                      |                 |         | penalty (-0.000); repeated genre penalty (-0.060); adjusted score  |
+|      |                      |                 |         | 0.452                                                              |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 4    | Brass Horizon        | Copper Steps    | 0.402   | genre mismatch (+0.000); mood mismatch (+0.000); energy distance   |
+|      |                      |                 |         | 0.060 (+0.134); acousticness omitted; active weights normalized by |
+|      |                      |                 |         | 1.40; popularity similarity 0.980 (+0.070); release decade         |
+|      |                      |                 |         | similarity 0.800 (+0.057); detailed mood tags similarity 0.000     |
+|      |                      |                 |         | (+0.000); duration similarity 0.970 (+0.069); instrumentalness     |
+|      |                      |                 |         | similarity 1.000 (+0.071); base score 0.402; repeated artist       |
+|      |                      |                 |         | penalty (-0.000); repeated genre penalty (-0.000); adjusted score  |
+|      |                      |                 |         | 0.402                                                              |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+| 5    | Storm Runner         | Voltline        | 0.385   | genre mismatch (+0.000); mood mismatch (+0.000); energy distance   |
+|      |                      |                 |         | 0.110 (+0.127); acousticness omitted; active weights normalized by |
+|      |                      |                 |         | 1.40; popularity similarity 0.840 (+0.060); release decade         |
+|      |                      |                 |         | similarity 0.900 (+0.064); detailed mood tags similarity 0.000     |
+|      |                      |                 |         | (+0.000); duration similarity 0.893 (+0.064); instrumentalness     |
+|      |                      |                 |         | similarity 0.980 (+0.070); base score 0.385; repeated artist       |
+|      |                      |                 |         | penalty (-0.000); repeated genre penalty (-0.000); adjusted score  |
+|      |                      |                 |         | 0.385                                                              |
++------+----------------------+-----------------+---------+--------------------------------------------------------------------+
+```

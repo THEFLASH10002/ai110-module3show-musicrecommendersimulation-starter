@@ -141,7 +141,7 @@ def test_cli_and_readme_sample_match():
     result = subprocess.run([sys.executable, '-m', 'src.main'], cwd=root,
                             capture_output=True, text=True, check=True)
     assert result.stdout.startswith('Loaded songs: 18\n')
-    assert '1. Sunrise City' in result.stdout
+    assert '| 1    | Sunrise City' in result.stdout
     readme = (root / 'README.md').read_text(encoding='utf-8')
     sample = readme.split('## Sample Recommendation Output', 1)[1].split('```text\n', 1)[1].split('```', 1)[0]
     assert sample.strip() == result.stdout.strip()
